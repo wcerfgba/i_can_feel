@@ -2,3 +2,11 @@ html, body {
   margin: 0;
   overflow: hidden;
 }
+
+#isf-canvas {
+  position: absolute;
+  top: calc(50% - 256px);
+  left: calc(50% - 256px);
+  width: 512px;
+  height: 512px;
+}
