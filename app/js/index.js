@@ -1,6 +1,6 @@
 const ISFRenderer = require('interactive-shader-format').Renderer
 
-const canvas = document.querySelector('#isf-canvas')
+const canvas = document.querySelector('#canvas')
 canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 
@@ -9,36 +9,51 @@ const renderer = new ISFRenderer(gl)
 
 const isfFragment = `
 /*{
-  "CREDIT": "",
-  "DESCRIPTION": "",
-  "CATEGORIES": [],
-  "INPUTS": []
+  "INPUTS": [],
+  "PASSES": [
+    {
+      "TARGET": "prev",
+      "PERSISTENT": true
+    }
+  ]
 }*/
 
 #ifdef GL_ES
-precision highp float;
+precision mediump float;
 #endif
 
 void main() {
-  float X = 24.;
-  float G = 5.75;
-  float N = (X * X) / G;
-  float t = 991677934871. * TIME;
-  float x = ((floor(X * isf_FragNormCoord.x) +
-              floor(X * isf_FragNormCoord.y) * X)) / ((X * X) + X);
-  float n = floor(x * N) / N;
-  float i = (1. / G) * mod(x * X * X, G);
+  const float B = 2.;
+  const float U = 13.;
+  const float I = U * U;
+  const float M = pow(2., I);
+  const float V = 1.;
 
-  float gv = (1. / n) * mod(t, n);
-  float cv = (1. / i) * mod(gv, i);
+  vec2 uv = floor(isf_FragNormCoord * U);
+  float i = uv.x + (U * uv.y);
+  vec3 v = IMG_PIXEL(prev, gl_FragCoord.xy).rgb;
 
-  vec4 col = vec4(cv, cv, cv, 1.);
-  gl_FragColor = col;
+  for (float j = 0.; j < I; j += 1.) {
+    if (i == 0.) {
+      break;
+    }
+    vec2 xy = vec2(j - U*floor(j/U), floor(j/U));
+    vec3 v_prev = IMG_PIXEL(prev, xy.xy).rgb;
+    if (v_prev.r == 0.) {
+      break;
+    }
+    if (j == (i - 1.)) {
+      v = vec3(1. - v.r, 1. - v.r, 1. - v.r);
+      break;
+    }
+  }
+
+  if (i == 0.) {
+    v = vec3(1. - v.r, 1. - v.r, 1. - v.r);
+  } 
+
+  gl_FragColor = vec4(v.rgb, 1.);
 }
-
-// Some nice time formulae:
-//
-//  float t = 10308848.7745 * TIME;  //  
 `
 renderer.loadSource(isfFragment)
 
@@ -47,3 +62,25 @@ const animate = () => {
   renderer.draw(canvas)
 }
 animate()
+
+
+// const canvas = document.getElementById('canvas')
+// const ctx = canvas.getContext('2d')
+
+// const draw = () => {
+//   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+//   const data = imageData.data
+    
+//   for (let i = 0; i < data.length; i += 4) {
+
+
+//     for (let c = 0; c < 3; c++) {
+//       data[i + c] = (data[i + c] + 1) % 255
+//     }
+//     data[i + 3] = 255  
+//   }
+//   ctx.putImageData(imageData, 0, 0)
+
+//   requestAnimationFrame(draw)
+// }
+// draw()
