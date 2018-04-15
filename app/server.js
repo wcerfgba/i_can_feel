@@ -7,4 +7,4 @@ app.use('/js', browserify(__dirname + '/js'));
 
 app.use(express.static(__dirname + '/public'));
 
-app.listen(process.env.PORT);
+app.listen(3333);
