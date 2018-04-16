@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <canvas></canvas>
+    <style>
+      html, body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      canvas {
+        position: absolute;
+        top: calc(50% - 256px);
+        left: calc(50% - 256px);
+        width: 512px;
+        height: 512px;
+      }
+    </style>
+    <script>
+      const canvas = document.querySelector('canvas')
+      const gl = canvas.getContext("webgl")
+
+      const vsSource = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+attribute vec2 a_position;
+
+void main() {
+  gl_Position = vec4(a_position, 0, 1);
+}
+`
+
+      const fsSource = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+void main() {
+	gl_FragColor = vec4(1.0,0.0,1.0,1.0);
+}
+`
+      const buff = gl.createBuffer()
+      gl.bindBuffer(gl.ARRAY_BUFFER, buff)
+      gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([
+          -1.0, -1.0, 
+           1.0, -1.0, 
+          -1.0,  1.0, 
+          -1.0,  1.0, 
+           1.0, -1.0, 
+           1.0,  1.0
+        ]),
+        gl.STATIC_DRAW
+      )
+
+      const vs = gl.createShader(gl.VERTEX_SHADER)
+      gl.shaderSource(vs, vsSource)
+      gl.compileShader(vs)
+
+      const fs = gl.createShader(gl.FRAGMENT_SHADER)
+      gl.shaderSource(fs, fsSource)
+      gl.compileShader(fs)
+      
+      const prog = gl.createProgram()
+      gl.attachShader(prog, vs)
+      gl.attachShader(prog, fs)
+      gl.linkProgram(prog)
+      gl.useProgram(prog)
+
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      const positionLocation = gl.getAttribLocation(prog, "a_position")
+      gl.enableVertexAttribArray(positionLocation)
+      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+      gl.drawArrays(gl.TRIANGLES, 0, 6)
+    </script>
+  </body>
+</html>

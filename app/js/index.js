@@ -7,6 +7,8 @@ canvas.height = window.innerHeight
 const gl = canvas.getContext("webgl")
 const renderer = new ISFRenderer(gl)
 
+// TODO: https://github.com/skeeto/webgl-game-of-life lelelelelele
+
 const isfFragment = `
 /*{
   "INPUTS": []
