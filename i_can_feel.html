@@ -22,64 +22,28 @@
       }
     </style>
     <script>
+      const omega = [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997, 1009 ]
+      const n = Math.floor(Math.sqrt(omega.length))
+      const theta = [ 0,2,0,1,1,1,3,7,12,15,23,36,25,8,34,7,44,20,5,65,8,27,79,56,56,0,20,70,90,8,16,48,88,112,36,57,92,141,155,32,74,86,140,158,182,188,50,110,135,140,165,190,200,4,28,48,76,84,104,124,128,172,224,244,248,264,324,11,38,44,59,74,101,116,137,146,167,188,203,227,257,263,293,299,317,329,347,371,383,389,401,437,458,470,497,4,16,42,44,80,94,112,126,138,142,152,174,186,196,202,214,224,234,238,260,282,286,294,304,316,322,344,352,366,380,400,418,436,454,466,478,484,502,514,520,538,546,572,594,618,620,642,646,654,656,678,706,712,716,726,752,760,766,772,812,822,838,858,874,882,894,906,934,942,954,966,982,994,9 ]
       const canvas = document.querySelector('canvas')
-      const gl = canvas.getContext("webgl")
-
-      const vsSource = `
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-attribute vec2 a_position;
-
-void main() {
-  gl_Position = vec4(a_position, 0, 1);
-}
-`
-
-      const fsSource = `
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-void main() {
-	gl_FragColor = vec4(1.0,0.0,1.0,1.0);
-}
-`
-      const buff = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, buff)
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-          -1.0, -1.0, 
-           1.0, -1.0, 
-          -1.0,  1.0, 
-          -1.0,  1.0, 
-           1.0, -1.0, 
-           1.0,  1.0
-        ]),
-        gl.STATIC_DRAW
-      )
-
-      const vs = gl.createShader(gl.VERTEX_SHADER)
-      gl.shaderSource(vs, vsSource)
-      gl.compileShader(vs)
-
-      const fs = gl.createShader(gl.FRAGMENT_SHADER)
-      gl.shaderSource(fs, fsSource)
-      gl.compileShader(fs)
-      
-      const prog = gl.createProgram()
-      gl.attachShader(prog, vs)
-      gl.attachShader(prog, fs)
-      gl.linkProgram(prog)
-      gl.useProgram(prog)
-
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-      const positionLocation = gl.getAttribLocation(prog, "a_position")
-      gl.enableVertexAttribArray(positionLocation)
-      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
-      gl.drawArrays(gl.TRIANGLES, 0, 6)
+      canvas.width = canvas.clientWidth
+      canvas.height = canvas.clientHeight
+      const ctx = canvas.getContext('2d')
+      const w = canvas.width / n
+      const x = (i) => canvas.width * (i % n) / n
+      const y = (i) => canvas.height * Math.floor(i / n) / n
+      const animate = () => {
+        for (let i = 0; i < omega.length; i++) {
+          theta[i] = (theta[i] + 1) % omega[i]
+        }
+        for (let i = 0; i < omega.length; i++) {
+          const c = Math.floor(255 * (theta[i] / omega[i])) % 255
+          ctx.fillStyle = `rgb(${c}, ${c}, ${c})`
+          ctx.fillRect(x(i), y(i), w, w)
+        }
+        requestAnimationFrame(animate)
+      }
+      animate()
     </script>
   </body>
 </html>
